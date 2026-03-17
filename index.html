@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Welcome to the Jungle – Clone</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="wtj-header">
+      <div class="container header-inner">
+        <div class="logo">Welcome to the Jungle</div>
+        <nav class="main-nav">
+          <a href="#jobs">Trouver un job</a>
+          <a href="#companies">Trouver une entreprise</a>
+          <a href="#media">Média</a>
+        </nav>
+        <div class="header-actions">
+          <a href="#employers" class="link-ghost">Employeurs</a>
+          <a href="#login" class="link-ghost">Se connecter</a>
+          <a href="#jobs" class="btn btn-small">Trouver un job</a>
+        </div>
+        <button class="burger" aria-label="Ouvrir le menu">
+          <span></span><span></span><span></span>
+        </button>
+      </div>
+    </header>
+
+    <main>
+      <!-- HERO -->
+      <section class="hero">
+        <div class="container hero-inner">
+          <div class="hero-content">
+            <p class="eyebrow">Find your people</p>
+            <h1>Plus de jobs vous attendent,<br />trouvez celui fait pour vous.</h1>
+            <p class="hero-subtitle">
+              Arrêtez de scroller des offres impersonnelles. Découvrez des
+              entreprises qui vous ressemblent et trouvez la bonne équipe.
+            </p>
+
+            <form class="search-bar">
+              <div class="field">
+                <label for="search-keyword">Job, mot-clé…</label>
+                <input
+                  id="search-keyword"
+                  type="text"
+                  placeholder="Ex : développeur, marketing, data…"
+                />
+              </div>
+              <div class="field">
+                <label for="search-location">Où ?</label>
+                <input
+                  id="search-location"
+                  type="text"
+                  placeholder="Ville, région, télétravail…"
+                />
+              </div>
+              <button type="submit" class="btn btn-primary">
+                Trouver un job
+              </button>
+            </form>
+
+            <div class="popular-searches">
+              <span class="label">Recherches populaires</span>
+              <div class="tags">
+                <button type="button" class="tag">communication</button>
+                <button type="button" class="tag">marketing</button>
+                <button type="button" class="tag">graphiste</button>
+                <button type="button" class="tag">data</button>
+                <button type="button" class="tag">product manager</button>
+                <button type="button" class="tag">développeur</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="hero-side">
+            <div class="hero-card">
+              <p class="hero-tagline">
+                Au travail, derrière chaque réussite collective, quelqu'un a
+                trouvé la bonne équipe.
+              </p>
+              <p class="hero-tagline-strong">
+                Trouvez la vôtre sur Welcome to the Jungle.
+              </p>
+              <div class="hero-actions">
+                <a href="#jobs" class="btn btn-primary">Trouver un job</a>
+                <a href="#opportunities" class="btn btn-outline"
+                  >Recevoir des opportunités</a
+                >
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ENTREPRISES -->
+      <section id="companies" class="section companies">
+        <div class="container">
+          <header class="section-header">
+            <h2>Explorez les entreprises</h2>
+            <p>
+              Découvrez leur histoire, rencontrez leurs équipes, comprenez leur
+              culture.
+            </p>
+          </header>
+
+          <div class="pill-row">
+            <button class="pill pill-active">À découvrir</button>
+            <button class="pill">Fintech</button>
+            <button class="pill">Economie collaborative</button>
+            <button class="pill">Energie</button>
+            <button class="pill">Média</button>
+            <button class="pill">Association</button>
+            <button class="pill">Mode</button>
+          </div>
+
+          <div class="cards-grid">
+            <article class="company-card">
+              <div class="company-badge">10 offres</div>
+              <h3>HARTMANN France</h3>
+              <p class="company-category">
+                Pharmaceutique / Biotechnologique, Santé
+              </p>
+              <p class="company-text">
+                Fondé en 1818, HARTMANN est l'un des leaders européens de
+                dispositifs médicaux et produits d'hygiène, avec plus de
+                10 000 collaborateurs dans 36 pays.
+              </p>
+              <p class="company-meta">
+                Châtenois, Clermont-Ferrand, Lille, Nantes, Nice, Perpignan…
+              </p>
+            </article>
+
+            <article class="company-card">
+              <div class="company-badge">14 offres</div>
+              <h3>Motul</h3>
+              <p class="company-category">Automobile</p>
+              <p class="company-text">
+                Pionnier des lubrifiants haute performance, partenaire
+                incontournable des plus grandes compétitions automobiles et
+                motos.
+              </p>
+              <p class="company-meta">Aubervilliers, Vaires-sur-Marne</p>
+            </article>
+
+            <article class="company-card">
+              <div class="company-badge">24 offres</div>
+              <h3>Ardian</h3>
+              <p class="company-category">Finance</p>
+              <p class="company-text">
+                Société d'investissement internationale, Ardian gère ou
+                conseille plus de 190 milliards de dollars d’actifs.
+              </p>
+              <p class="company-meta">
+                Paris, Londres, New York, Singapour, Tokyo…
+              </p>
+            </article>
+
+            <article class="company-card">
+              <div class="company-badge">41 offres</div>
+              <h3>ASI</h3>
+              <p class="company-category">
+                IT / Digital, Intelligence artificielle / Machine Learning
+              </p>
+              <p class="company-text">
+                Cabinet d'expertises numériques, au service de l’impact : des
+                services digitaux utiles, simples et responsables.
+              </p>
+              <p class="company-meta">Saint-Herblain</p>
+            </article>
+          </div>
+
+          <div class="section-cta">
+            <a href="#companies" class="btn btn-outline">Explorer les entreprises</a>
+          </div>
+        </div>
+      </section>
+
+      <!-- JOBS / PARCOURS CANDIDAT -->
+      <section id="jobs" class="section steps">
+        <div class="container">
+          <header class="section-header">
+            <h2>Trouvez un job</h2>
+            <p>
+              Vous avez le pouvoir d'écrire votre histoire. Find your people !
+            </p>
+          </header>
+
+          <div class="steps-grid">
+            <article class="step-card">
+              <h3>Entrez dans les coulisses</h3>
+              <p>
+                Consultez seulement les offres qui répondent à vos besoins
+                grâce à des filtres avancés. Découvrez les valeurs, les locaux
+                et vos futurs collègues.
+              </p>
+              <a href="#jobs" class="link-arrow">Trouver un job</a>
+            </article>
+
+            <article id="opportunities" class="step-card">
+              <h3>Laissez les jobs venir à vous</h3>
+              <p>
+                Créez gratuitement votre profil, indiquez votre disponibilité
+                et laissez les entreprises vous contacter directement.
+              </p>
+              <a href="#opportunities" class="link-arrow"
+                >Recevoir des opportunités</a
+              >
+            </article>
+
+            <article class="step-card">
+              <h3>Gagnez en efficacité</h3>
+              <p>
+                Centralisez toutes vos candidatures, activez des alertes
+                personnalisées et soyez le premier ou la première à postuler.
+              </p>
+              <a href="#dashboard" class="link-arrow">Suivre mes candidatures</a>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <!-- MEDIA -->
+      <section id="media" class="section media">
+        <div class="container media-grid">
+          <div>
+            <header class="section-header left">
+              <h2>Repensez le monde du travail grâce à notre média</h2>
+              <p>
+                Articles, conseils, vidéos, témoignages : découvrez tous nos
+                contenus pour vous épanouir au quotidien.
+              </p>
+            </header>
+
+            <article class="article-highlight">
+              <p class="article-label">Dernier article</p>
+              <h3>Reprendre sa vie pro en main : le mode d'emploi</h3>
+              <p class="article-meta">17 février 2026</p>
+              <p>
+                Vous avez envie de changer de travail mais vous ne savez plus ce
+                qui est fait pour vous ? Bienvenue dans le club “Je me sens
+                perdu·e dans ma vie pro”.
+              </p>
+              <a href="#media" class="link-arrow">Continuer de lire</a>
+            </article>
+          </div>
+
+          <div class="article-list">
+            <h4>Les plus lus</h4>
+            <ul>
+              <li>
+                <span>Reprendre sa vie pro en main : le mode d'emploi</span>
+                <span class="article-meta">17 février 2026</span>
+              </li>
+              <li>
+                <span
+                  >Nespresso France : quand la marque employeur a du corps et de
+                  l'arôme</span
+                >
+                <span class="article-meta">7 octobre 2025</span>
+              </li>
+              <li>
+                <span
+                  >La bonne résolution 2026 ? Redevenir sa priorité n°1</span
+                >
+                <span class="article-meta">8 janvier 2026</span>
+              </li>
+              <li>
+                <span>5 peurs au travail et comment les surmonter</span>
+                <span class="article-meta">29 octobre 2025</span>
+              </li>
+              <li>
+                <span
+                  >Le futur du recrutement sera T-shaped ou ne sera pas</span
+                >
+                <span class="article-meta">19 novembre 2025</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="container footer-top">
+        <div class="footer-brand">
+          <div class="logo">Welcome to the Jungle</div>
+          <p>
+            La plateforme pour trouver l'entreprise qui vous correspond et
+            repenser votre vie professionnelle.
+          </p>
+        </div>
+
+        <div class="footer-columns">
+          <div class="footer-column">
+            <h4>À propos</h4>
+            <ul>
+              <li><a href="#concept">Concept</a></li>
+              <li><a href="#about">Qui sommes-nous ?</a></li>
+              <li><a href="#jobs">Offres d'emploi</a></li>
+              <li><a href="#internships">Offres de stage</a></li>
+              <li><a href="#help">Centre d'aide</a></li>
+            </ul>
+          </div>
+
+          <div class="footer-column">
+            <h4>Nous rencontrer</h4>
+            <ul>
+              <li><a href="#human-after-all">Human After All</a></li>
+              <li><a href="#press">Presse</a></li>
+              <li><a href="#jobs">Jobs</a></li>
+              <li><a href="#pricing">Tarifs</a></li>
+              <li><a href="#support">Besoin d’aide ?</a></li>
+            </ul>
+          </div>
+
+          <div class="footer-column">
+            <h4>La newsletter qui fait le taf</h4>
+            <p>
+              Une fois par semaine, des histoires, des jobs et des conseils dans
+              votre boîte mail.
+            </p>
+            <form class="newsletter">
+              <input
+                type="email"
+                placeholder="Votre adresse e-mail"
+                aria-label="Votre adresse e-mail"
+              />
+              <button type="submit" class="btn btn-primary">
+                Je m'abonne
+              </button>
+            </form>
+            <p class="newsletter-note">
+              Vous pouvez vous désabonner à tout moment. On n'est pas
+              susceptibles, promis.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <div class="container footer-bottom-inner">
+          <div class="footer-links">
+            <a href="#legal">Mentions légales</a>
+            <a href="#cgu">CGU</a>
+            <a href="#privacy">Politique de confidentialité</a>
+            <a href="#charters">Chartes Welcome to the Jungle</a>
+            <a href="#cookies">Politique cookies</a>
+          </div>
+          <div class="footer-locale">
+            <span>France (FR)</span>
+          </div>
+        </div>
+      </div>
+    </footer>
+
+    <script src="main.js"></script>
+  </body>
+  </html>
+
+
+
