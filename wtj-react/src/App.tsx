@@ -4,8 +4,8 @@ import AdminDashboard from "./AdminDashboard";
 import "./style.css";
 
 const jobOffer = {
-  title: "Stage Développement Web",
-  company: "Votre Entreprise",
+  title: "Stage Developpement Web",
+  company: "Canedis - Paris",
 };
 
 function App() {
