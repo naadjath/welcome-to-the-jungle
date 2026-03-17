@@ -1,4 +1,5 @@
 import { useState } from "react";
+import type { ChangeEvent, FormEvent } from "react";
 import { apiCall } from "./apiHelper";
 
 interface ApplicationFormProps {
@@ -31,7 +32,7 @@ const ApplicationForm = ({
   const [errorMessage, setErrorMessage] = useState("");
 
   const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
@@ -40,7 +41,7 @@ const ApplicationForm = ({
     }));
   };
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       // Vérifier que c'est un PDF ou DOC
@@ -62,7 +63,7 @@ const ApplicationForm = ({
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setErrorMessage("");
 
@@ -99,15 +100,14 @@ const ApplicationForm = ({
 
       // Appeler votre backend
       const response = await apiCall("/api/applications/submit", {
-        method: "POST",
-        body: submitData,
-      });
+  method: "POST",
+  body: submitData,
+    });
 
-      if (!response.ok) {
-        throw new Error("Erreur lors de l'envoi de la candidature");
-      }
-
-      const data = await response.json();
+     if (!response.ok) {
+     const text = await response.text();
+     throw new Error(text || "Erreur lors de l'envoi de la candidature");
+     }
 
       // Afficher le message de succès
       setSubmitSuccess(true);
@@ -165,9 +165,10 @@ const ApplicationForm = ({
           <div className="success-message">
             <div className="success-icon">✓</div>
             <h3>Candidature envoyée avec succès !</h3>
+            
             <p>
-              Un email de confirmation a été envoyé à <strong>{formData.email}</strong>
-            </p>
+              Un email de confirmation a été envoyé à <strong>{formData.email || "votre adresse email"}</strong>
+             </p>
             <p className="success-text">
               L'équipe de {companyName} examinera votre candidature et vous 
               recontactera si elle correspond à leurs besoins.
@@ -384,3 +385,4 @@ const ApplicationForm = ({
 };
 
 export default ApplicationForm;
+
