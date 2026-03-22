@@ -149,7 +149,9 @@ app.post("/api/applications/submit", upload.single("cv"), async (req, res) => {
 
     if (tokenError) throw new Error(tokenError.message);
 
-    const verificationUrl = `${process.env.FRONTEND_URL || "http://localhost:5173"}/technical-form?token=${token}&appId=${applicationId}`;
+const frontendUrl = (process.env.FRONTEND_URL || "http://localhost:5173").replace(/\/$/, "");
+const verificationUrl = `${frontendUrl}/technical-form?token=${token}&appId=${applicationId}`;
+
 
     const candidateEmailHtml = `
       <!DOCTYPE html>
