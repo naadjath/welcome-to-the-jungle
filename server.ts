@@ -86,8 +86,13 @@ app.get("/api/test-email", async (req, res) => {
     if (!process.env.EMAIL_USER || !process.env.EMAIL_PASSWORD) {
       return res.json({ success: false, message: "Email non configuré" });
     }
-    await transporter.verify();
-    res.json({ success: true, message: "Email configuration OK" });
+    await transporter.sendMail({
+      from: process.env.EMAIL_USER,
+      to: process.env.EMAIL_USER,
+      subject: "✅ Test email TECHNOVIA",
+      html: "<p>Email de test envoyé depuis Render !</p>",
+    });
+    res.json({ success: true, message: "Email envoyé avec succès !" });
   } catch (error) {
     res.status(400).json({
       success: false,
@@ -95,7 +100,6 @@ app.get("/api/test-email", async (req, res) => {
     });
   }
 });
-
 // Route d'envoi de candidature
 app.post("/api/applications/submit", upload.single("cv"), async (req, res) => {
   try {
