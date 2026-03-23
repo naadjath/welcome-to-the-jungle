@@ -1,6 +1,5 @@
 import express from "express";
 import multer from "multer";
-import nodemailer from "nodemailer";
 import path from "path";
 import fs from "fs";
 import dotenv from "dotenv";
@@ -64,16 +63,31 @@ const upload = multer({
   },
 });
 
-// Configuration Nodemailer
-const transporter = nodemailer.createTransport({
-  host: process.env.EMAIL_HOST || "smtp.gmail.com",
-  port: parseInt(process.env.EMAIL_PORT || "587"),
-  secure: process.env.EMAIL_SECURE === "true" || false,
-  auth: process.env.EMAIL_USER && process.env.EMAIL_PASSWORD ? {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASSWORD,
-  } : undefined,
-});
+// ✅ Brevo HTTP API — remplace nodemailer (contourne le blocage SMTP de Render)
+const sendEmail = async (to: string, subject: string, html: string) => {
+  const response = await fetch("https://api.brevo.com/v3/smtp/email", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "api-key": process.env.BREVO_API_KEY!,
+    },
+    body: JSON.stringify({
+      sender: {
+        name: "TECHNOVIA",
+        email: process.env.EMAIL_USER || "abdoulayeseibou126@gmail.com",
+      },
+      to: [{ email: to }],
+      subject,
+      htmlContent: html,
+    }),
+  });
+
+  if (!response.ok) {
+    const err = await response.json();
+    throw new Error(JSON.stringify(err));
+  }
+  return response.json();
+};
 
 // Health check
 app.get("/api/health", (req, res) => {
@@ -83,15 +97,14 @@ app.get("/api/health", (req, res) => {
 // Test email
 app.get("/api/test-email", async (req, res) => {
   try {
-    if (!process.env.EMAIL_USER || !process.env.EMAIL_PASSWORD) {
-      return res.json({ success: false, message: "Email non configuré" });
+    if (!process.env.BREVO_API_KEY) {
+      return res.status(400).json({ success: false, message: "BREVO_API_KEY non configurée" });
     }
-    await transporter.sendMail({
-      from: process.env.EMAIL_USER,
-      to: process.env.EMAIL_USER,
-      subject: "✅ Test email TECHNOVIA",
-      html: "<p>Email de test envoyé depuis Render !</p>",
-    });
+    await sendEmail(
+      process.env.EMAIL_USER || "abdoulayeseibou126@gmail.com",
+      "✅ Test email TECHNOVIA",
+      "<p>Email de test envoyé depuis Render via Brevo API. Configuration OK !</p>"
+    );
     res.json({ success: true, message: "Email envoyé avec succès !" });
   } catch (error) {
     res.status(400).json({
@@ -100,6 +113,7 @@ app.get("/api/test-email", async (req, res) => {
     });
   }
 });
+
 // Route d'envoi de candidature
 app.post("/api/applications/submit", upload.single("cv"), async (req, res) => {
   try {
@@ -153,9 +167,8 @@ app.post("/api/applications/submit", upload.single("cv"), async (req, res) => {
 
     if (tokenError) throw new Error(tokenError.message);
 
-const frontendUrl = (process.env.FRONTEND_URL || "http://localhost:5173").replace(/\/$/, "");
-const verificationUrl = `${frontendUrl}/technical-form?token=${token}&appId=${applicationId}`;
-
+    const frontendUrl = (process.env.FRONTEND_URL || "http://localhost:5173").replace(/\/$/, "");
+    const verificationUrl = `${frontendUrl}/technical-form?token=${token}&appId=${applicationId}`;
 
     const candidateEmailHtml = `
       <!DOCTYPE html>
@@ -164,42 +177,46 @@ const verificationUrl = `${frontendUrl}/technical-form?token=${token}&appId=${ap
         <meta charset="UTF-8">
         <style>
           body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f5f5; margin: 0; padding: 20px; }
-          .container { max-width: 600px; margin: 0 auto; background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-          .header { background: linear-gradient(135deg, #FFD700 0%, #FFC700 100%); padding: 40px 20px; text-align: center; }
-          .header h1 { color: white; margin: 0; font-size: 28px; }
-          .content { padding: 40px; }
-          .success-box { background: #e8f5e9; border-left: 4px solid #4caf50; padding: 16px; margin-bottom: 24px; border-radius: 4px; }
-          .success-box h2 { color: #2e7d32; margin-top: 0; }
-          .details { background: #f9f9f9; padding: 20px; border-radius: 4px; margin-top: 24px; }
-          .detail-row { margin-bottom: 12px; display: flex; justify-content: space-between; }
-          .detail-label { font-weight: 600; color: #333; }
+          .container { max-width: 600px; margin: 0 auto; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+          .header { background: #120F14; padding: 36px 32px; text-align: center; }
+          .header h1 { color: rgb(255,205,0); margin: 0; font-size: 24px; font-weight: 800; }
+          .content { padding: 36px 32px; }
+          .success-box { background: #f0fdf4; border-left: 4px solid #22c55e; padding: 16px 20px; margin-bottom: 24px; border-radius: 6px; }
+          .success-box h2 { color: #15803d; margin-top: 0; font-size: 18px; }
+          .btn { display: inline-block; background: rgb(255,205,0); color: #120F14; text-decoration: none; padding: 14px 32px; border-radius: 100px; font-weight: 800; margin-top: 20px; font-size: 15px; border: 2px solid #120F14; }
+          .details { background: #f9f9f9; padding: 20px; border-radius: 8px; margin-top: 24px; }
+          .detail-row { margin-bottom: 10px; display: flex; justify-content: space-between; font-size: 14px; }
+          .detail-label { font-weight: 700; color: #333; }
           .detail-value { color: #666; }
           .footer { background: #f5f5f5; padding: 20px; text-align: center; border-top: 1px solid #e0e0e0; font-size: 12px; color: #999; }
+          .url-box { word-break: break-all; font-size: 12px; color: #999; background: #f5f5f5; padding: 12px; border-radius: 6px; margin-top: 12px; }
         </style>
       </head>
       <body>
         <div class="container">
           <div class="header"><h1>✓ Candidature Reçue</h1></div>
           <div class="content">
-            <p>Bonjour ${fullName},</p>
+            <p style="font-size:16px;">Bonjour <strong>${fullName}</strong>,</p>
             <div class="success-box">
-              <h2>Merci ! Votre candidature a bien été envoyée</h2>
-              <p>Nous avons reçu votre candidature pour le poste de <strong>${jobTitle}</strong> chez <strong>${companyName}</strong>.</p>
+              <h2>Merci ! Votre candidature a bien été envoyée 🎉</h2>
+              <p style="margin:0;color:#166534;">Nous avons reçu votre candidature pour le poste de <strong>${jobTitle}</strong> chez <strong>${companyName}</strong>.</p>
             </div>
-            <p>Avant de poursuivre, nous avons besoin que vous complétiez un formulaire technique.</p>
-            <a href="${verificationUrl}" style="display: inline-block; background: linear-gradient(135deg, #FFD700 0%, #FFC700 100%); color: white; text-decoration: none; padding: 14px 32px; border-radius: 4px; font-weight: 600; margin-top: 20px;">Accéder au formulaire technique</a>
-            <p style="margin-top: 20px; font-size: 14px; color: #666;">Ou copiez ce lien :</p>
-            <p style="word-break: break-all; font-size: 12px; color: #999; background: #f5f5f5; padding: 12px; border-radius: 4px;">${verificationUrl}</p>
+            <p style="color:#444;">Pour finaliser votre dossier, veuillez compléter le formulaire technique en cliquant sur le bouton ci-dessous :</p>
+            <div style="text-align:center;margin:24px 0;">
+              <a href="${verificationUrl}" class="btn">Accéder au formulaire technique →</a>
+            </div>
+            <p style="font-size:13px;color:#888;">Ou copiez ce lien dans votre navigateur :</p>
+            <div class="url-box">${verificationUrl}</div>
             <div class="details">
-              <h3 style="margin-top: 0; color: #333;">Résumé</h3>
+              <h3 style="margin-top:0;color:#333;font-size:15px;">Récapitulatif</h3>
               <div class="detail-row"><span class="detail-label">Poste :</span><span class="detail-value">${jobTitle}</span></div>
               <div class="detail-row"><span class="detail-label">Entreprise :</span><span class="detail-value">${companyName}</span></div>
               <div class="detail-row"><span class="detail-label">Nom :</span><span class="detail-value">${fullName}</span></div>
               <div class="detail-row"><span class="detail-label">Date :</span><span class="detail-value">${date} à ${time}</span></div>
             </div>
-            <p style="margin-top: 24px; color: #999; font-size: 14px;">Ce lien expire dans 24 heures.</p>
+            <p style="margin-top:24px;color:#999;font-size:13px;">⚠️ Ce lien expire dans 24 heures.</p>
           </div>
-          <div class="footer"><p>Email généré automatiquement.</p></div>
+          <div class="footer"><p>Email envoyé automatiquement par TECHNOVIA.</p></div>
         </div>
       </body>
       </html>
@@ -209,36 +226,36 @@ const verificationUrl = `${frontendUrl}/technical-form?token=${token}&appId=${ap
       <!DOCTYPE html>
       <html lang="fr">
       <head><meta charset="UTF-8"></head>
-      <body style="font-family: sans-serif; padding: 20px;">
-        <h2>Nouvelle candidature - ${jobTitle}</h2>
-        <p><strong>Nom :</strong> ${fullName}</p>
-        <p><strong>Email :</strong> ${email}</p>
-        <p><strong>Téléphone :</strong> ${phone}</p>
-        <p><strong>Date :</strong> ${date} à ${time}</p>
-        <h3>Motivation</h3>
-        <p>${motivation.replace(/\n/g, "<br>")}</p>
-        <p>⚠️ Le CV est en pièce jointe.</p>
+      <body style="font-family:sans-serif;padding:20px;background:#f5f5f5;">
+        <div style="max-width:600px;margin:0 auto;background:white;border-radius:12px;padding:32px;">
+          <h2 style="color:#120F14;border-bottom:3px solid rgb(255,205,0);padding-bottom:12px;">📨 Nouvelle candidature — ${jobTitle}</h2>
+          <p><strong>Nom :</strong> ${fullName}</p>
+          <p><strong>Email :</strong> ${email}</p>
+          <p><strong>Téléphone :</strong> ${phone}</p>
+          <p><strong>Date :</strong> ${date} à ${time}</p>
+          <h3>Motivation</h3>
+          <p style="background:#f9f9f9;padding:16px;border-radius:8px;">${motivation.replace(/\n/g, "<br>")}</p>
+          <p style="color:#888;font-size:13px;">⚠️ Le CV a été joint à cette candidature.</p>
+        </div>
       </body>
       </html>
     `;
 
-    if (process.env.EMAIL_USER && process.env.EMAIL_PASSWORD) {
-      transporter.sendMail({
-        from: process.env.EMAIL_FROM || process.env.EMAIL_USER,
-        to: email,
-        subject: `✓ Candidature reçue - ${jobTitle} chez ${companyName}`,
-        html: candidateEmailHtml,
-      }).catch((err) => console.error("❌ Erreur email candidat:", err.message));
+    // Envoi email candidat
+    sendEmail(email, `✓ Candidature reçue — ${jobTitle} chez ${companyName}`, candidateEmailHtml)
+      .then(() => console.log(`✅ Email envoyé au candidat: ${email}`))
+      .catch((err) => console.error("❌ Erreur email candidat:", err.message));
 
-      transporter.sendMail({
-        from: process.env.EMAIL_FROM || process.env.EMAIL_USER,
-        to: process.env.COMPANY_EMAIL || "company@example.com",
-        subject: `Nouvelle candidature - ${jobTitle}`,
-        html: companyEmailHtml,
-        attachments: [{ filename: req.file.originalname, path: req.file.path }],
-      }).catch((err) => console.error("❌ Erreur email entreprise:", err.message));
-    }
+    // Envoi email entreprise
+    sendEmail(
+      process.env.COMPANY_EMAIL || "company@example.com",
+      `Nouvelle candidature — ${jobTitle}`,
+      companyEmailHtml
+    )
+      .then(() => console.log(`✅ Email envoyé à l'entreprise`))
+      .catch((err) => console.error("❌ Erreur email entreprise:", err.message));
 
+    // Supprimer le CV après envoi
     setTimeout(() => {
       fs.unlink(req.file!.path, (err) => {
         if (err) console.error("Erreur suppression fichier:", err);
@@ -352,14 +369,19 @@ app.post("/api/technical-form/submit", async (req, res) => {
 
     await supabase.from("tokens").update({ used: true }).eq("token", token);
 
-    transporter.sendMail({
-      from: process.env.EMAIL_FROM || process.env.EMAIL_USER,
-      to: email,
-      subject: `✓ Formulaire Technique Reçu - ${appData.job_title}`,
-      html: `<p>Bonjour ${appData.full_name}, votre formulaire technique a bien été reçu. Merci !</p>`,
-    }).catch(console.error);
+    // Email de confirmation formulaire technique
+    sendEmail(
+      email,
+      `✓ Formulaire Technique Reçu — ${appData.job_title}`,
+      `<div style="font-family:sans-serif;padding:32px;max-width:500px;margin:0 auto;">
+        <h2 style="color:#120F14;">✓ Formulaire reçu !</h2>
+        <p>Bonjour <strong>${appData.full_name}</strong>,</p>
+        <p>Votre formulaire technique a bien été soumis. Nous reviendrons vers vous prochainement.</p>
+        <p style="color:#888;font-size:13px;">Merci de votre intérêt pour le poste de ${appData.job_title}.</p>
+      </div>`
+    ).catch(console.error);
 
-    console.log(`✓ Formulaire technique reçu pour ${applicationId}`);
+    console.log(`✅ Formulaire technique reçu pour ${applicationId}`);
 
     res.json({
       success: true,
@@ -375,7 +397,7 @@ app.post("/api/technical-form/submit", async (req, res) => {
   }
 });
 
-// Route admin - toutes les candidatures
+// Route admin — toutes les candidatures
 app.get("/api/admin/applications", async (req, res) => {
   try {
     const { data, error } = await supabase
@@ -385,7 +407,6 @@ app.get("/api/admin/applications", async (req, res) => {
 
     if (error) throw new Error(error.message);
 
-    // Reformater pour correspondre à ce qu'attend AdminDashboard
     const formattedApplications: Record<string, any> = {};
     data.forEach((app: any) => {
       formattedApplications[app.id] = {
@@ -411,11 +432,7 @@ app.get("/api/admin/applications", async (req, res) => {
       };
     });
 
-    res.json({
-      success: true,
-      count: data.length,
-      applications: formattedApplications,
-    });
+    res.json({ success: true, count: data.length, applications: formattedApplications });
   } catch (error) {
     res.status(500).json({
       error: "Erreur lors de la récupération des candidatures",
@@ -441,7 +458,7 @@ app.get("/api/test-create-application", async (req, res) => {
       availability: "Immédiatement",
       questions: "Test questions",
       job_title: "Stage Développement Web",
-      company_name: "Votre Entreprise",
+      company_name: "TECHNOVIA",
       date: new Date().toLocaleDateString("fr-FR"),
       time: new Date().toLocaleTimeString("fr-FR"),
       cv_file: "test.pdf",
@@ -460,7 +477,8 @@ app.get("/api/test-create-application", async (req, res) => {
 
     if (tokenError) throw new Error(tokenError.message);
 
-    const technicalFormUrl = `${process.env.FRONTEND_URL || "http://localhost:5173"}/technical-form?token=${testToken}&appId=${testAppId}`;
+    const frontendUrl = (process.env.FRONTEND_URL || "http://localhost:5173").replace(/\/$/, "");
+    const technicalFormUrl = `${frontendUrl}/technical-form?token=${testToken}&appId=${testAppId}`;
 
     res.json({
       success: true,
@@ -483,6 +501,7 @@ app.listen(port, () => {
 ║  🚀 Serveur lancé sur http://localhost:${port}             
 ║  📧 Email: ${process.env.EMAIL_USER || "À configurer"}
 ║  🏢 Destinataire: ${process.env.COMPANY_EMAIL || "À configurer"}
+║  🔑 Brevo API: ${process.env.BREVO_API_KEY ? "✅ Configurée" : "❌ Manquante"}
 ╚═══════════════════════════════════════════════════════════╝
   `);
 });
